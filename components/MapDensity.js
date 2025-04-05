@@ -1,9 +1,8 @@
-// File: components/MapDensity.jsx
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { MapContainer, TileLayer, WMSTileLayer } from 'react-leaflet';
+import { MapContainer, TileLayer, WMSTileLayer, ZoomControl } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Fix Leaflet icon issues
@@ -57,14 +56,22 @@ function MapDensity({ shipType, timeFrame }) {
 
   if (!mapLoaded) {
     return (
-      <div className="w-full h-[70vh] flex items-center justify-center bg-gray-100 rounded-lg shadow-md">
-        <div className="text-gray-500">Loading map...</div>
+      <div className="w-full h-[70vh] flex items-center justify-center bg-gray-900 border border-gray-800 rounded">
+        <div className="text-gray-400 font-mono text-sm">
+          <span className="text-terminal-yellow">LOADING</span> MARITIME DATA...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[70vh] rounded-lg overflow-hidden shadow-md bg-white">
+    <div className="w-full h-[70vh] rounded overflow-hidden border border-gray-700 bg-gray-900 relative">
+      {/* Map title overlay */}
+      <div className="absolute top-0 left-0 z-[1000] bg-black bg-opacity-50 text-white px-3 py-1 text-xs font-mono m-2 rounded">
+        <span className="text-terminal-blue-light mr-1">MAP:</span>
+        GLOBAL MARITIME TRAFFIC {shipType === 'all' ? 'ALL VESSELS' : shipType === 'cargo' ? 'CONTAINER SHIPS' : 'TANKERS'}
+      </div>
+      
       <MapContainer
         ref={mapRef}
         bounds={bounds}
@@ -73,11 +80,14 @@ function MapDensity({ shipType, timeFrame }) {
         minZoom={1}
         maxZoom={13}
         scrollWheelZoom={true}
+        zoomControl={false}
+        attributionControl={false}
+        className="dark-map"
       >
-        {/* Base map layer */}
+        {/* Base map layer - using a dark style */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
         
         {/* GMTDS WMS Layer */}
@@ -93,8 +103,13 @@ function MapDensity({ shipType, timeFrame }) {
             time: getTimeParam(),
             cql_filter: getCqlFilter()
           }}
-          opacity={0.8}
+          opacity={0.85}
         />
+        
+        {/* Add zoom control to bottom right */}
+        <ZoomControl position="bottomright" />
+        
+        {/* We're not showing attribution control - it will be in our StatusBar */}
       </MapContainer>
     </div>
   );

@@ -13,21 +13,26 @@ function MapLegend() {
     ];
   
     return (
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <h3 className="text-md font-medium mb-3 text-slate-700">Traffic Density</h3>
-        <div className="space-y-2">
+      <div className="terminal-panel p-4">
+        <div className="flex items-center mb-3">
+          <div className="w-2 h-2 bg-terminal-green rounded-full mr-2"></div>
+          <h3 className="terminal-section-title text-sm font-semibold">TRAFFIC DENSITY</h3>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           {legendItems.map((item, index) => (
             <div key={index} className="flex items-center">
               <div
-                className="w-5 h-5 rounded-sm mr-2"
+                className="w-3 h-3 mr-2"
                 style={{ backgroundColor: item.color }}
               ></div>
-              <span className="text-sm text-slate-600">{item.label}</span>
+              <span className="text-xs text-gray-300 font-mono">{item.label.toUpperCase()}</span>
             </div>
           ))}
         </div>
-        <div className="text-xs text-slate-500 mt-3">
-          Measured in hours per square kilometer
+        
+        <div className="terminal-data-label mt-3 text-center text-xs">
+          HOURS PER SQUARE KILOMETER
         </div>
       </div>
     );

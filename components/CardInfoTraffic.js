@@ -29,33 +29,36 @@ function CardInfoTraffic({ shipType, timeFrame }) {
     const info = shipTypeInfo[shipType] || shipTypeInfo['All Vessels'];
   
     return (
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <h3 className="text-md font-medium mb-3 text-slate-700">Current Selection</h3>
+      <div className="terminal-panel p-4">
+        <div className="flex items-center mb-3">
+          <div className="w-2 h-2 bg-terminal-yellow rounded-full mr-2"></div>
+          <h3 className="terminal-section-title text-sm font-semibold">CURRENT SELECTION</h3>
+        </div>
         
         <div className="space-y-3">
-          <div>
-            <span className="text-sm font-medium text-slate-500">Vessel Type:</span>
-            <p className="text-slate-800 font-medium">{shipType}</p>
+          <div className="flex justify-between">
+            <span className="terminal-data-label">VESSEL TYPE:</span>
+            <span className="terminal-data-value text-sm">{shipType.toUpperCase()}</span>
+          </div>
+          
+          <div className="flex justify-between">
+            <span className="terminal-data-label">TIME PERIOD:</span>
+            <span className="terminal-data-value text-sm">{getMonthName(timeFrame).toUpperCase()} 2021</span>
+          </div>
+          
+          <div className="flex justify-between">
+            <span className="terminal-data-label">ACTIVE VESSELS:</span>
+            <span className="terminal-data-value text-sm">{info.count}</span>
+          </div>
+          
+          <div className="border-t border-gray-700 pt-2 mt-2">
+            <div className="terminal-data-label mb-1">MAJOR ROUTES:</div>
+            <p className="text-xs text-gray-300 font-mono">{info.routes.toUpperCase()}</p>
           </div>
           
           <div>
-            <span className="text-sm font-medium text-slate-500">Time Period:</span>
-            <p className="text-slate-800 font-medium">{getMonthName(timeFrame)} 2021</p>
-          </div>
-          
-          <div>
-            <span className="text-sm font-medium text-slate-500">Active Vessels:</span>
-            <p className="text-slate-800 font-medium">{info.count}</p>
-          </div>
-          
-          <div>
-            <span className="text-sm font-medium text-slate-500">Major Routes:</span>
-            <p className="text-sm text-slate-700">{info.routes}</p>
-          </div>
-          
-          <div>
-            <span className="text-sm font-medium text-slate-500">Description:</span>
-            <p className="text-sm text-slate-700">{info.description}</p>
+            <div className="terminal-data-label mb-1">DESCRIPTION:</div>
+            <p className="text-xs text-gray-300 font-mono">{info.description}</p>
           </div>
         </div>
       </div>

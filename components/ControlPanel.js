@@ -1,4 +1,3 @@
-// File: components/ControlPanel.jsx
 "use client";
 
 import { useState } from 'react';
@@ -34,56 +33,65 @@ function ControlPanel({ onShipTypeChange, onTimeFrameChange }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mb-4">
-      <h2 className="text-lg font-semibold mb-4 text-slate-800">Maritime Traffic Filters</h2>
+    <div className="terminal-panel p-4 mb-4">
+      <div className="flex items-center mb-3">
+        <div className="w-2 h-2 bg-terminal-blue rounded-full mr-2"></div>
+        <h2 className="terminal-section-title text-sm font-semibold">MARITIME TRAFFIC FILTERS</h2>
+      </div>
       
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <h3 className="text-md font-medium mb-2 text-slate-700">Vessel Type</h3>
+          <div className="mb-2">
+            <span className="terminal-data-label">VESSEL TYPE</span>
+            <span className="text-xs text-terminal-green ml-2">[SELECT]</span>
+          </div>
           <div className="flex space-x-2">
             <button
               onClick={() => handleShipTypeChange('all')}
-              className={`px-4 py-2 rounded-lg text-sm ${
+              className={`px-3 py-1 text-xs rounded ${
                 selectedShipType === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'terminal-button-active'
+                  : 'terminal-button'
               }`}
             >
-              All Vessels
+              ALL VESSELS
             </button>
             <button
               onClick={() => handleShipTypeChange('cargo')}
-              className={`px-4 py-2 rounded-lg text-sm ${
+              className={`px-3 py-1 text-xs rounded ${
                 selectedShipType === 'cargo'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'terminal-button-active'
+                  : 'terminal-button'
               }`}
             >
-              Container Ships
+              CONTAINER SHIPS
             </button>
             <button
               onClick={() => handleShipTypeChange('tanker')}
-              className={`px-4 py-2 rounded-lg text-sm ${
+              className={`px-3 py-1 text-xs rounded ${
                 selectedShipType === 'tanker'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'terminal-button-active'
+                  : 'terminal-button'
               }`}
             >
-              Tankers
+              TANKERS
             </button>
           </div>
         </div>
         
         <div>
-          <h3 className="text-md font-medium mb-2 text-slate-700">Time Period (2021)</h3>
+          <div className="mb-2">
+            <span className="terminal-data-label">TIME PERIOD (2021)</span>
+            <span className="text-xs text-terminal-green ml-2">[SELECT]</span>
+          </div>
           <select
             value={selectedMonth}
             onChange={handleTimeFrameChange}
-            className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="terminal-select w-full md:w-48 px-3 py-1 text-xs rounded bg-input-bg"
           >
             {months.map((month) => (
               <option key={month.value} value={month.value}>
-                {month.label}
+                {month.label.toUpperCase()}
               </option>
             ))}
           </select>
