@@ -258,6 +258,13 @@ function ShippingDeviations({ shipType, timeFrame, year, onRouteSelect, selected
     const date = new Date(2021, parseInt(monthNumber) - 1, 1);
     return date.toLocaleString('default', { month: 'long' });
   };
+  
+  // Helper function for previous month name
+  function getPrevMonthName(monthNumber) {
+    const prevMonth = monthNumber === 1 ? 12 : monthNumber - 1;
+    const date = new Date(2021, prevMonth - 1, 1);
+    return date.toLocaleString('default', { month: 'long' });
+  }
 
   return (
     <div className="terminal-panel p-4 h-[40vh] overflow-auto">
@@ -349,9 +356,4 @@ function ShippingDeviations({ shipType, timeFrame, year, onRouteSelect, selected
   );
 }
 
-  // Get previous month (with wrap-around from January to December)
-  const getPrevMonthName = (monthNumber) => {
-    const prevMonth = monthNumber === 1 ? 12 : monthNumber - 1;
-    const date = new Date(2021, prevMonth - 1, 1);
-    return date.toLocaleString('default', { month: 'long' });
-  };
+export default ShippingDeviations;
