@@ -1,27 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function RouteVolumeChart({ route, shipType, year }) {
   const [chartData, setChartData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!route) {
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-    
-    // Simulate loading data from an API
-    setTimeout(() => {
-      // Generate data for the selected route across all months
-      const generatedData = generateRouteData(route, shipType, year);
-      setChartData(generatedData);
-      setIsLoading(false);
-    }, 800);
-  }, [route, shipType, year]);
+  const chartRef = useRef(null);
 
   // Generate simulated historical data for the route
   const generateRouteData = (route, shipType, selectedYear) => {
@@ -85,157 +69,213 @@ function RouteVolumeChart({ route, shipType, year }) {
     });
   };
 
-  // Calculate the max value for the chart
-  const getMaxValue = () => {
-    if (chartData.length === 0) return 500;
-    return Math.max(...chartData.map(d => Math.max(d.volume, d.prevYearVolume))) * 1.2;
+  // Load the Plotly script dynamically
+  const loadPlotlyScript = () => {
+    return new Promise((resolve, reject) => {
+      // Check if Plotly is already loaded
+      if (window.Plotly) {
+        resolve(window.Plotly);
+        return;
+      }
+
+      // Create script element
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/plotly.js@2.29.1/dist/plotly.min.js';
+      script.async = true;
+      script.onload = () => resolve(window.Plotly);
+      script.onerror = (err) => reject(new Error('Failed to load Plotly script'));
+      document.body.appendChild(script);
+    });
   };
 
-  // Function to draw the chart (SVG-based solution)
-  const renderChart = () => {
-    if (chartData.length === 0) return null;
+  // Render the chart using Plotly
+  const renderChart = (data) => {
+    if (!chartRef.current || !window.Plotly || !data.length) return;
     
-    const maxValue = getMaxValue();
-    const width = 100; // percentage width
-    const height = 250; // fixed height
-    const padding = { top: 20, right: 20, bottom: 30, left: 40 };
+    const months = data.map(item => item.month);
+    const currentYearVolume = data.map(item => item.volume);
+    const prevYearVolume = data.map(item => item.prevYearVolume);
     
-    // Calculate bar width based on number of data points
-    const barWidth = (width - padding.left - padding.right) / (chartData.length * 2); // Each month has 2 bars
+    const plotData = [
+      {
+        name: `${year}`,
+        x: months,
+        y: currentYearVolume,
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: {
+          color: '#3584e4',
+          width: 4
+        },
+        marker: {
+          color: '#3584e4',
+          size: 10
+        }
+      },
+      {
+        name: `${year-1}`,
+        x: months,
+        y: prevYearVolume,
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: {
+          color: '#2ec27e',
+          width: 4,
+          dash: 'dot'
+        },
+        marker: {
+          color: '#2ec27e',
+          size: 10
+        }
+      }
+    ];
     
-    return (
-      <svg 
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="none"
-        className="w-full h-full"
-        style={{ overflow: 'visible' }}
-      >
-        {/* Y-axis line */}
-        <line
-          x1={padding.left}
-          y1={padding.top}
-          x2={padding.left}
-          y2={height - padding.bottom}
-          stroke="#444"
-          strokeWidth="0.2"
-        />
-        
-        {/* X-axis line */}
-        <line
-          x1={padding.left}
-          y1={height - padding.bottom}
-          x2={width - padding.right}
-          y2={height - padding.bottom}
-          stroke="#444"
-          strokeWidth="0.2"
-        />
-        
-        {/* Y-axis labels - create 5 evenly spaced labels */}
-        {[0, 1, 2, 3, 4].map((i) => {
-          const yValue = maxValue - (maxValue / 4) * i;
-          const yPos = padding.top + ((height - padding.top - padding.bottom) / 4) * i;
-          
-          return (
-            <g key={`y-label-${i}`}>
-              <line
-                x1={padding.left - 0.5}
-                y1={yPos}
-                x2={width - padding.right}
-                y2={yPos}
-                stroke="#333"
-                strokeWidth="0.1"
-                strokeDasharray="0.5,0.5"
-              />
-              <text
-                x={padding.left - 1}
-                y={yPos}
-                fontSize="2"
-                fill="#999"
-                textAnchor="end"
-                dominantBaseline="middle"
-              >
-                {Math.round(yValue)}
-              </text>
-            </g>
-          );
-        })}
-        
-        {/* X-axis labels and bars */}
-        {chartData.map((data, i) => {
-          const x = padding.left + i * (barWidth * 2 + 1); // 1 unit gap between month groups
-          const barHeight1 = ((data.volume / maxValue) * (height - padding.top - padding.bottom));
-          const barHeight2 = ((data.prevYearVolume / maxValue) * (height - padding.top - padding.bottom));
-          const y1 = height - padding.bottom - barHeight1;
-          const y2 = height - padding.bottom - barHeight2;
-          
-          return (
-            <g key={`month-${i}`}>
-              {/* Month label */}
-              <text
-                x={x + barWidth}
-                y={height - padding.bottom + 3}
-                fontSize="2"
-                fill="#999"
-                textAnchor="middle"
-              >
-                {data.month}
-              </text>
-              
-              {/* Current year bar */}
-              <rect
-                x={x}
-                y={y1}
-                width={barWidth}
-                height={barHeight1}
-                fill="#3584e4"
-                opacity="0.9"
-              />
-              
-              {/* Previous year bar */}
-              <rect
-                x={x + barWidth + 0.2}
-                y={y2}
-                width={barWidth}
-                height={barHeight2}
-                fill="#2ec27e"
-                opacity="0.7"
-              />
-            </g>
-          );
-        })}
-        
-        {/* Legend */}
-        <g transform={`translate(${width - 20}, ${padding.top})`}>
-          <rect x="0" y="0" width="2" height="2" fill="#3584e4" />
-          <text x="3" y="1.5" fontSize="1.8" fill="#ccc">{year}</text>
-          
-          <rect x="0" y="3" width="2" height="2" fill="#2ec27e" />
-          <text x="3" y="4.5" fontSize="1.8" fill="#ccc">{year-1}</text>
-        </g>
-        
-        {/* Chart title */}
-        <text
-          x={width / 2}
-          y={padding.top / 2}
-          fontSize="2.5"
-          fill="#ccc"
-          textAnchor="middle"
-        >
-          MONTHLY TRAFFIC VOLUMES
-        </text>
-      </svg>
-    );
+    const layout = {
+      autosize: true,
+      height: 280,
+      margin: {
+        l: 50,
+        r: 40,
+        b: 40,
+        t: 30,
+        pad: 4
+      },
+      paper_bgcolor: '#1e1e1e',
+      plot_bgcolor: '#1e1e1e',
+      font: {
+        family: 'Roboto Mono, monospace',
+        size: 10,
+        color: '#e1e1e1'
+      },
+      title: {
+        text: 'MONTHLY TRAFFIC VOLUMES',
+        font: {
+          family: 'Roboto Mono, monospace',
+          size: 12,
+          color: '#e1e1e1'
+        },
+        x: 0.5
+      },
+      xaxis: {
+        title: '',
+        tickfont: {
+          family: 'Roboto Mono, monospace',
+          size: 11,
+          color: '#cccccc'
+        },
+        gridcolor: '#333333',
+        linecolor: '#444444',
+        showgrid: true,
+        tickmode: 'array',
+        tickvals: months,
+        ticktext: months
+      },
+      yaxis: {
+        title: 'VOLUME',
+        titlefont: {
+          family: 'Roboto Mono, monospace',
+          size: 11,
+          color: '#cccccc'
+        },
+        tickfont: {
+          family: 'Roboto Mono, monospace',
+          size: 11,
+          color: '#cccccc'
+        },
+        gridcolor: '#333333',
+        linecolor: '#444444',
+        showgrid: true,
+        zeroline: true,
+        zerolinecolor: '#444444',
+        zerolinewidth: 1
+      },
+      legend: {
+        x: 0.02,
+        y: 0.98,
+        bgcolor: '#252525',
+        bordercolor: '#444444',
+        borderwidth: 1,
+        font: {
+          family: 'Roboto Mono, monospace',
+          size: 9,
+          color: '#e1e1e1'
+        },
+        orientation: 'h'
+      },
+      hovermode: 'closest',
+      showlegend: true
+    };
+    
+    const config = {
+      displayModeBar: false,
+      responsive: true,
+      toImageButtonOptions: {
+        format: 'png',
+        filename: `${route.name}-traffic-volume`,
+        height: 500,
+        width: 900,
+        scale: 2
+      }
+    };
+    
+    window.Plotly.newPlot(chartRef.current, plotData, layout, config);
   };
 
-  if (isLoading) {
-    return (
-      <div className="terminal-panel p-4 h-[30vh] flex items-center justify-center">
-        <div className="text-terminal-yellow font-mono text-sm">
-          LOADING VOLUME DATA...
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!route) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Generate route data
+    const routeData = generateRouteData(route, shipType, year);
+    setChartData(routeData);
+
+    // Load Plotly and render chart
+    const initChart = async () => {
+      try {
+        await loadPlotlyScript();
+        // Add a small delay to ensure DOM is ready
+        setTimeout(() => {
+          renderChart(routeData);
+          setIsLoading(false);
+          
+          // Force a resize after a brief delay to ensure proper rendering
+          setTimeout(() => {
+            if (chartRef.current && window.Plotly) {
+              window.Plotly.Plots.resize(chartRef.current);
+            }
+          }, 200);
+        }, 50);
+      } catch (error) {
+        console.error('Failed to initialize chart:', error);
+        setIsLoading(false);
+      }
+    };
+
+    initChart();
+
+    // Cleanup function
+    return () => {
+      if (chartRef.current && window.Plotly) {
+        window.Plotly.purge(chartRef.current);
+      }
+    };
+  }, [route, shipType, year]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (chartRef.current && window.Plotly && chartData.length) {
+        window.Plotly.Plots.resize(chartRef.current);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [chartData]);
 
   if (!route) {
     return (
@@ -248,7 +288,7 @@ function RouteVolumeChart({ route, shipType, year }) {
   }
 
   return (
-    <div className="terminal-panel p-4 h-[30vh]">
+    <div className="terminal-panel p-4 h-[40vh]" style={{ minHeight: "350px" }}>
       <div className="flex items-center mb-3">
         <div className="w-2 h-2 bg-terminal-green rounded-full mr-2"></div>
         <h3 className="terminal-section-title text-sm font-semibold">
@@ -260,8 +300,20 @@ function RouteVolumeChart({ route, shipType, year }) {
         Region: {route.region} | Distance: {route.distance}
       </div>
       
-      <div className="h-[calc(100%-60px)]">
-        {renderChart()}
+      <div className="h-[calc(100%-40px)] relative" style={{ minHeight: "280px" }}>
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-panel-bg bg-opacity-50 z-10">
+            <div className="text-terminal-yellow font-mono text-sm">
+              LOADING VOLUME DATA...
+            </div>
+          </div>
+        )}
+        <div 
+          ref={chartRef} 
+          className="w-full h-full" 
+          id="volume-chart"
+          style={{ zIndex: 5 }}
+        ></div>
       </div>
     </div>
   );

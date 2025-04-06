@@ -20,7 +20,7 @@ const MapDensity = dynamic(() => import('./MapDensity'), {
 const ShippingDeviations = dynamic(() => import('./ShippingDeviations'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[70vh] flex items-center justify-center bg-gray-900 border border-gray-800 rounded">
+    <div className="w-full h-[40vh] flex items-center justify-center bg-gray-900 border border-gray-800 rounded">
       <div className="text-gray-400 font-mono text-sm">
         <span className="text-terminal-yellow">LOADING</span> DEVIATION DATA...
       </div>
@@ -32,7 +32,7 @@ const ShippingDeviations = dynamic(() => import('./ShippingDeviations'), {
 const RouteVolumeChart = dynamic(() => import('./RouteVolumeChart'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[30vh] flex items-center justify-center bg-gray-900 border border-gray-800 rounded">
+    <div className="w-full h-[70vh] flex items-center justify-center bg-gray-900 border border-gray-800 rounded">
       <div className="text-gray-400 font-mono text-sm">
         <span className="text-terminal-yellow">LOADING</span> CHART DATA...
       </div>

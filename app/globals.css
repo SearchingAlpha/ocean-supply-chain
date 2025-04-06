@@ -79,6 +79,76 @@ body {
   color: #aaa !important;
 }
 
+/* Bloomberg-like chart styles */
+.js-plotly-plot .plotly .main-svg {
+  background: var(--panel-bg) !important;
+}
+
+.js-plotly-plot .plotly .modebar-btn path {
+  fill: #999 !important;
+}
+
+.js-plotly-plot .plotly .modebar {
+  background: rgba(30, 30, 30, 0.7) !important;
+}
+
+.js-plotly-plot .plotly .modebar-btn:hover path {
+  fill: #3584e4 !important;
+}
+
+.js-plotly-plot .plotly .ytick text,
+.js-plotly-plot .plotly .xtick text {
+  font-family: 'Roboto Mono', monospace !important;
+  font-size: 11px !important;
+  fill: #cccccc !important;
+}
+
+.js-plotly-plot .plotly .gridlayer path {
+  stroke: #333 !important;
+}
+
+.js-plotly-plot .plotly .legend text {
+  font-family: 'Roboto Mono', monospace !important;
+  font-size: 11px !important;
+  fill: #e1e1e1 !important;
+}
+
+.js-plotly-plot .plotly .hoverlayer .hovertext {
+  font-family: 'Roboto Mono', monospace !important;
+  font-size: 12px !important;
+  color: white !important;
+  background-color: rgba(30, 30, 30, 0.9) !important;
+  border: 1px solid #444 !important;
+}
+
+/* Make sure plot is visible */
+#volume-chart {
+  position: relative;
+  z-index: 5;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure traces are visible */
+.js-plotly-plot .plotly .scatterlayer .trace {
+  opacity: 1 !important;
+}
+
+/* Better hover effects */
+.js-plotly-plot .plotly .hoverlayer {
+  z-index: 1000 !important;
+}
+
+/* Make line and points more visible */
+.js-plotly-plot .plotly .scatter .point {
+  stroke-width: 2px !important;
+  fill-opacity: 1 !important;
+}
+
+.js-plotly-plot .plotly .scatterlayer .trace path {
+  stroke-opacity: 1 !important;
+}
+
 /* Custom classes */
 .terminal-header {
   border-bottom: 1px solid var(--terminal-blue);
