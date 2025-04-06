@@ -23,6 +23,7 @@ const MapDensity = dynamic(() => import('./MapDensity'), {
 function MaritimeDashboard() {
   const [shipType, setShipType] = useState('all');
   const [timeFrame, setTimeFrame] = useState('01');
+  const [selectedYear, setSelectedYear] = useState(2025); // Default to current year
 
   const handleShipTypeChange = (type) => {
     setShipType(type);
@@ -30,6 +31,10 @@ function MaritimeDashboard() {
 
   const handleTimeFrameChange = (month) => {
     setTimeFrame(month);
+  };
+
+  const handleYearChange = (year) => {
+    setSelectedYear(year);
   };
 
   // Map ship type to display text
@@ -47,18 +52,24 @@ function MaritimeDashboard() {
         <ControlPanel 
           onShipTypeChange={handleShipTypeChange} 
           onTimeFrameChange={handleTimeFrameChange} 
+          onYearChange={handleYearChange}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
           <div className="lg:col-span-3">
             <MapDensity 
               shipType={shipType} 
-              timeFrame={timeFrame} 
-              key={`map-container-${shipType}-${timeFrame}`}
+              timeFrame={timeFrame}
+              year={selectedYear}
+              key={`map-container-${shipType}-${timeFrame}-${selectedYear}`}
             />
           </div>
           <div className="space-y-4">
-            <CardInfoTraffic shipType={shipTypeToText[shipType]} timeFrame={timeFrame} />
+            <CardInfoTraffic 
+              shipType={shipTypeToText[shipType]} 
+              timeFrame={timeFrame} 
+              year={selectedYear}
+            />
             <MapLegend />
             
             {/* Adding a mini metrics panel */}
@@ -95,7 +106,7 @@ function MaritimeDashboard() {
             VISUALIZATION USES DATA FROM THE GLOBAL MARITIME TRAFFIC DENSITY SERVICE (GMTDS).
             DATA IS PROCESSED FROM AUTOMATIC IDENTIFICATION SYSTEM (AIS) SIGNALS TRANSMITTED
             BY VESSELS WORLDWIDE. DENSITY IS MEASURED IN HOURS PER SQUARE KILOMETER,
-            INDICATING CONCENTRATION OF MARITIME TRAFFIC. PERIOD: 2011-2021.
+            INDICATING CONCENTRATION OF MARITIME TRAFFIC. PERIOD: 2020-2025.
           </p>
         </div>
       </div>

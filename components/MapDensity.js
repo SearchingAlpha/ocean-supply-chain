@@ -15,7 +15,7 @@ const fixLeafletIcons = () => {
   });
 };
 
-function MapDensity({ shipType, timeFrame }) {
+function MapDensity({ shipType, timeFrame, year = 2025 }) {
   const [mapLoaded, setMapLoaded] = useState(false);
   const mapRef = useRef(null);
   
@@ -47,11 +47,9 @@ function MapDensity({ shipType, timeFrame }) {
     return "category_column='All' AND category='All'";
   };
 
-  // Format the time parameter based on the timeFrame
+  // Format the time parameter based on the timeFrame and year
   const getTimeParam = () => {
-    // Default to current year's January 1st
-    // Since GMTDS data ranges from 2011-2021, we'll use 2021 as default
-    return `2021-${timeFrame}-01T00:00:00Z`;
+    return `${year}-${timeFrame}-01T00:00:00Z`;
   };
 
   if (!mapLoaded) {
@@ -69,7 +67,7 @@ function MapDensity({ shipType, timeFrame }) {
       {/* Map title overlay */}
       <div className="absolute top-0 left-0 z-[1000] bg-black bg-opacity-50 text-white px-3 py-1 text-xs font-mono m-2 rounded">
         <span className="text-terminal-blue-light mr-1">MAP:</span>
-        GLOBAL MARITIME TRAFFIC {shipType === 'all' ? 'ALL VESSELS' : shipType === 'cargo' ? 'CONTAINER SHIPS' : 'TANKERS'}
+        GLOBAL MARITIME TRAFFIC {shipType === 'all' ? 'ALL VESSELS' : shipType === 'cargo' ? 'CONTAINER SHIPS' : 'TANKERS'} ({year})
       </div>
       
       <MapContainer

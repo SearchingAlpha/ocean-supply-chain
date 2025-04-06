@@ -137,3 +137,33 @@ body {
 .terminal-select:focus {
   border-color: var(--terminal-blue-light);
 }
+
+.terminal-select:focus {
+  border-color: var(--terminal-blue-light);
+}
+
+/* Tab navigation */
+.terminal-tabs button {
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-tabs button:focus {
+  outline: none;
+}
+
+.terminal-tabs button:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.terminal-tabs button:hover:after {
+  transform: translateX(0);
+  background-color: #333;
+}

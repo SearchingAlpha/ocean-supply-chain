@@ -1,9 +1,9 @@
 // File: components/CardInfoTraffic.jsx
 
-function CardInfoTraffic({ shipType, timeFrame }) {
+function CardInfoTraffic({ shipType, timeFrame, year = 2025 }) {
     // Convert timeFrame to month name
     const getMonthName = (monthNumber) => {
-      const date = new Date(2021, parseInt(monthNumber) - 1, 1);
+      const date = new Date(year, parseInt(monthNumber) - 1, 1);
       return date.toLocaleString('default', { month: 'long' });
     };
   
@@ -42,8 +42,8 @@ function CardInfoTraffic({ shipType, timeFrame }) {
           </div>
           
           <div className="flex justify-between">
-            <span className="terminal-data-label">TIME PERIOD:</span>
-            <span className="terminal-data-value text-sm">{getMonthName(timeFrame).toUpperCase()} 2021</span>
+            <span className="terminal-data-label">DATE:</span>
+            <span className="terminal-data-value text-sm">{getMonthName(timeFrame).toUpperCase()} {year}</span>
           </div>
           
           <div className="flex justify-between">

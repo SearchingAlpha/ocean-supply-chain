@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from 'react';
+import YearToggle from './YearToggle';
 
-function ControlPanel({ onShipTypeChange, onTimeFrameChange }) {
+function ControlPanel({ onShipTypeChange, onTimeFrameChange, onYearChange }) {
   const [selectedShipType, setSelectedShipType] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState('01');
+  const [selectedYear, setSelectedYear] = useState(2025); // Default to current year
 
   const months = [
     { value: '01', label: 'January' },
@@ -32,6 +34,11 @@ function ControlPanel({ onShipTypeChange, onTimeFrameChange }) {
     onTimeFrameChange(month);
   };
 
+  const handleYearChange = (year) => {
+    setSelectedYear(year);
+    onYearChange(year);
+  };
+
   return (
     <div className="terminal-panel p-4 mb-4">
       <div className="flex items-center mb-3">
@@ -39,16 +46,16 @@ function ControlPanel({ onShipTypeChange, onTimeFrameChange }) {
         <h2 className="terminal-section-title text-sm font-semibold">MARITIME TRAFFIC FILTERS</h2>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <div className="mb-2">
             <span className="terminal-data-label">VESSEL TYPE</span>
             <span className="text-xs text-terminal-green ml-2">[SELECT]</span>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 flex-wrap">
             <button
               onClick={() => handleShipTypeChange('all')}
-              className={`px-3 py-1 text-xs rounded ${
+              className={`px-3 py-1 text-xs rounded mb-1 ${
                 selectedShipType === 'all'
                   ? 'terminal-button-active'
                   : 'terminal-button'
@@ -58,7 +65,7 @@ function ControlPanel({ onShipTypeChange, onTimeFrameChange }) {
             </button>
             <button
               onClick={() => handleShipTypeChange('cargo')}
-              className={`px-3 py-1 text-xs rounded ${
+              className={`px-3 py-1 text-xs rounded mb-1 ${
                 selectedShipType === 'cargo'
                   ? 'terminal-button-active'
                   : 'terminal-button'
@@ -68,7 +75,7 @@ function ControlPanel({ onShipTypeChange, onTimeFrameChange }) {
             </button>
             <button
               onClick={() => handleShipTypeChange('tanker')}
-              className={`px-3 py-1 text-xs rounded ${
+              className={`px-3 py-1 text-xs rounded mb-1 ${
                 selectedShipType === 'tanker'
                   ? 'terminal-button-active'
                   : 'terminal-button'
@@ -79,9 +86,14 @@ function ControlPanel({ onShipTypeChange, onTimeFrameChange }) {
           </div>
         </div>
         
+        <YearToggle 
+          selectedYear={selectedYear} 
+          onYearChange={handleYearChange} 
+        />
+        
         <div>
           <div className="mb-2">
-            <span className="terminal-data-label">TIME PERIOD (2021)</span>
+            <span className="terminal-data-label">MONTH</span>
             <span className="text-xs text-terminal-green ml-2">[SELECT]</span>
           </div>
           <select
