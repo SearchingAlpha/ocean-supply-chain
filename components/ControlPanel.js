@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import YearToggle from './YearToggle';
 
-function ControlPanel({ onShipTypeChange, onTimeFrameChange, onYearChange }) {
-  const [selectedShipType, setSelectedShipType] = useState('all');
-  const [selectedMonth, setSelectedMonth] = useState('01');
-  const [selectedYear, setSelectedYear] = useState(2025); // Default to current year
-
+function ControlPanel({ 
+  onShipTypeChange, 
+  onTimeFrameChange, 
+  onYearChange,
+  selectedShipType = 'all',
+  selectedMonth = '01',
+  selectedYear = 2025
+}) {
   const months = [
     { value: '01', label: 'January' },
     { value: '02', label: 'February' },
@@ -24,18 +27,15 @@ function ControlPanel({ onShipTypeChange, onTimeFrameChange, onYearChange }) {
   ];
 
   const handleShipTypeChange = (type) => {
-    setSelectedShipType(type);
     onShipTypeChange(type);
   };
 
   const handleTimeFrameChange = (event) => {
     const month = event.target.value;
-    setSelectedMonth(month);
     onTimeFrameChange(month);
   };
 
   const handleYearChange = (year) => {
-    setSelectedYear(year);
     onYearChange(year);
   };
 
