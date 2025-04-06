@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-function ShippingDeviations({ shipType, timeFrame }) {
+function ShippingDeviations({ shipType, timeFrame, year, onRouteSelect, selectedRoute }) {
   // Sample data for shipping route deviations
   // In a real application, this would come from an API
   const [deviationData, setDeviationData] = useState([]);
@@ -24,14 +24,19 @@ function ShippingDeviations({ shipType, timeFrame }) {
     // Simulate an API call with setTimeout
     setTimeout(() => {
       // Generate semi-realistic data based on shipType and timeFrame
-      const generatedData = generateDeviationData(shipType, currentMonth, prevMonth);
+      const generatedData = generateDeviationData(shipType, currentMonth, prevMonth, year);
       setDeviationData(generatedData);
       setIsLoading(false);
+      
+      // If no route is selected, select the one with the highest deviation
+      if (!selectedRoute && generatedData.length > 0) {
+        onRouteSelect(generatedData[0]);
+      }
     }, 1000);
-  }, [shipType, timeFrame]);
+  }, [shipType, timeFrame, year, onRouteSelect, selectedRoute]);
 
   // Generate realistic sample data
-  const generateDeviationData = (shipType, currentMonth, prevMonth) => {
+  const generateDeviationData = (shipType, currentMonth, prevMonth, selectedYear) => {
     const routes = [
       { 
         id: 1, 
@@ -136,6 +141,15 @@ function ShippingDeviations({ shipType, timeFrame }) {
       'Malacca Strait': [1.1, 1.1, 1.0, 0.9, 0.8, 0.8, 0.9, 1.0, 1.1, 1.2, 1.2, 1.1],
     };
     
+    // Year factors to create more variance between years
+    const yearFactor = {
+      2021: 0.8,
+      2022: 0.9, 
+      2023: 1.0,
+      2024: 1.1,
+      2025: 1.2
+    };
+    
     // Ship type factors
     const shipTypeFactors = {
       'all': 1.0,
@@ -150,10 +164,10 @@ function ShippingDeviations({ shipType, timeFrame }) {
       
       // Calculate traffic values with some randomness
       const randomVariation = Math.random() * 0.2 + 0.9; // 0.9 to 1.1
-      const currentValue = Math.round(route.baseline * currentFactor * shipTypeFactors[shipType] * randomVariation);
+      const currentValue = Math.round(route.baseline * currentFactor * shipTypeFactors[shipType] * yearFactor[selectedYear] * randomVariation);
       
       const randomVariationPrev = Math.random() * 0.2 + 0.9; // 0.9 to 1.1
-      const prevValue = Math.round(route.baseline * prevFactor * shipTypeFactors[shipType] * randomVariationPrev);
+      const prevValue = Math.round(route.baseline * prevFactor * shipTypeFactors[shipType] * yearFactor[selectedYear] * randomVariationPrev);
       
       // Calculate MoM changes
       const absoluteChange = currentValue - prevValue;
@@ -193,6 +207,11 @@ function ShippingDeviations({ shipType, timeFrame }) {
     return 0;
   });
 
+  // Handle route selection
+  const handleRouteClick = (route) => {
+    onRouteSelect(route);
+  };
+
   // Get column header class based on sort state
   const getHeaderClass = (key) => {
     if (sortConfig.key === key) {
@@ -209,6 +228,11 @@ function ShippingDeviations({ shipType, timeFrame }) {
     return '';
   };
 
+  // Function to determine if a row is selected
+  const isSelected = (routeId) => {
+    return selectedRoute && selectedRoute.id === routeId;
+  };
+
   // Function to determine the color class based on percentage change
   const getChangeColorClass = (percentage) => {
     if (percentage > 10) return 'text-terminal-red';
@@ -221,7 +245,7 @@ function ShippingDeviations({ shipType, timeFrame }) {
 
   if (isLoading) {
     return (
-      <div className="terminal-panel p-4 h-[70vh] flex items-center justify-center">
+      <div className="terminal-panel p-4 h-[40vh] flex items-center justify-center">
         <div className="text-terminal-yellow font-mono text-sm">
           LOADING DEVIATION DATA...
         </div>
@@ -235,24 +259,18 @@ function ShippingDeviations({ shipType, timeFrame }) {
     return date.toLocaleString('default', { month: 'long' });
   };
 
-  // Get previous month (with wrap-around from January to December)
-  const getPrevMonthName = (monthNumber) => {
-    const prevMonth = monthNumber === 1 ? 12 : monthNumber - 1;
-    const date = new Date(2021, prevMonth - 1, 1);
-    return date.toLocaleString('default', { month: 'long' });
-  };
-
   return (
-    <div className="terminal-panel p-4 h-[70vh] overflow-auto">
+    <div className="terminal-panel p-4 h-[40vh] overflow-auto">
       <div className="flex items-center mb-4">
         <div className="w-2 h-2 bg-terminal-blue rounded-full mr-2"></div>
         <h2 className="terminal-section-title text-sm font-semibold">
-          SHIPPING ROUTE MOM DEVIATIONS: {getMonthName(timeFrame).toUpperCase()} vs {getPrevMonthName(timeFrame).toUpperCase()}
+          SHIPPING ROUTE MOM DEVIATIONS: {getMonthName(timeFrame).toUpperCase()} vs {getPrevMonthName(timeFrame).toUpperCase()} {year}
         </h2>
       </div>
       
       <div className="text-xs text-gray-400 mb-4 font-mono">
         Traffic volume comparison showing month-over-month changes for {shipType === 'all' ? 'all vessels' : shipType === 'cargo' ? 'container ships' : 'tankers'} across major shipping routes.
+        <span className="text-terminal-yellow ml-2">Click on a route to view detailed volume trends.</span>
       </div>
       
       <div className="overflow-x-auto">
@@ -289,8 +307,17 @@ function ShippingDeviations({ shipType, timeFrame }) {
           </thead>
           <tbody>
             {sortedData.map((route) => (
-              <tr key={route.id} className="border-b border-gray-800 hover:bg-gray-800">
-                <td className="px-2 py-2 text-white">{route.name}</td>
+              <tr 
+                key={route.id} 
+                className={`border-b border-gray-800 hover:bg-gray-800 cursor-pointer ${
+                  isSelected(route.id) ? 'bg-gray-800' : ''
+                }`}
+                onClick={() => handleRouteClick(route)}
+              >
+                <td className={`px-2 py-2 ${isSelected(route.id) ? 'text-terminal-blue-light' : 'text-white'}`}>
+                  {route.name}
+                  {isSelected(route.id) && <span className="text-terminal-yellow ml-2">▶</span>}
+                </td>
                 <td className="px-2 py-2 text-gray-400">{route.region}</td>
                 <td className="px-2 py-2 text-right text-terminal-yellow">{route.current}</td>
                 <td className="px-2 py-2 text-right text-gray-400">{route.previous}</td>
@@ -322,4 +349,9 @@ function ShippingDeviations({ shipType, timeFrame }) {
   );
 }
 
-export default ShippingDeviations;
+  // Get previous month (with wrap-around from January to December)
+  const getPrevMonthName = (monthNumber) => {
+    const prevMonth = monthNumber === 1 ? 12 : monthNumber - 1;
+    const date = new Date(2021, prevMonth - 1, 1);
+    return date.toLocaleString('default', { month: 'long' });
+  };

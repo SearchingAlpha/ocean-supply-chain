@@ -1,24 +1,13 @@
 "use client";
 
 import { useState } from 'react';
-import dynamic from 'next/dynamic';
 import ControlPanel from './ControlPanel';
 import CardInfoTraffic from './CardInfoTraffic';
 import MapLegend from './MapLegend';
 import TerminalHeader from './TerminalHeader';
 import StatusBar from './StatusBar';
-
-// Dynamically import the MapDensity component to prevent SSR issues with Leaflet
-const MapDensity = dynamic(() => import('./MapDensity'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-[70vh] flex items-center justify-center bg-gray-900 border border-gray-800 rounded">
-      <div className="text-gray-400 font-mono text-sm">
-        <span className="text-terminal-yellow">LOADING</span> MARITIME DATA...
-      </div>
-    </div>
-  ),
-});
+import TabsContainer from './TabsContainer';
+import DataTrendIndicator from './DataTrendIndicator';
 
 function MaritimeDashboard() {
   const [shipType, setShipType] = useState('all');
@@ -53,15 +42,18 @@ function MaritimeDashboard() {
           onShipTypeChange={handleShipTypeChange} 
           onTimeFrameChange={handleTimeFrameChange} 
           onYearChange={handleYearChange}
+          selectedShipType={shipType}
+          selectedMonth={timeFrame}
+          selectedYear={selectedYear}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
           <div className="lg:col-span-3">
-            <MapDensity 
+            <TabsContainer 
               shipType={shipType} 
               timeFrame={timeFrame}
               year={selectedYear}
-              key={`map-container-${shipType}-${timeFrame}-${selectedYear}`}
+              key={`tab-container-${shipType}-${timeFrame}-${selectedYear}`}
             />
           </div>
           <div className="space-y-4">
@@ -71,6 +63,7 @@ function MaritimeDashboard() {
               year={selectedYear}
             />
             <MapLegend />
+            <DataTrendIndicator year={selectedYear} />
             
             {/* Adding a mini metrics panel */}
             <div className="terminal-panel p-4">
